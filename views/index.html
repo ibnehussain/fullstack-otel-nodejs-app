@@ -1,17 +1,230 @@
 <!-- views/index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Cart App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OTel Store</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+    header span.badge {
+      background: rgba(255,255,255,.25);
+      font-size: 0.75rem;
+      padding: 2px 10px;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    /* ── Layout ── */
+    main {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 640px) { main { grid-template-columns: 1fr; } }
+
+    section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    }
+    section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #718096;
+      margin-bottom: 1.1rem;
+    }
+
+    /* ── Product cards ── */
+    .products { display: flex; flex-direction: column; gap: 0.85rem; }
+
+    .product-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      transition: box-shadow .15s, border-color .15s;
+    }
+    .product-card:hover { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,.12); }
+
+    .product-icon {
+      font-size: 2rem;
+      width: 48px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .product-info { flex: 1; }
+    .product-info .name { font-weight: 600; font-size: 0.95rem; }
+    .product-info .price { color: #667eea; font-weight: 700; font-size: 1rem; margin-top: 2px; }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 0.45rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .1s, opacity .15s;
+    }
+    .btn:active { transform: scale(.96); }
+
+    .btn-primary { background: #667eea; color: #fff; }
+    .btn-primary:hover { opacity: .88; }
+    .btn-danger  { background: #fed7d7; color: #c53030; }
+    .btn-danger:hover  { background: #feb2b2; }
+
+    /* ── Cart ── */
+    #cart-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    #cart-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.9rem;
+      animation: fadeIn .2s ease;
+    }
+    #cart-list li .item-name { font-weight: 500; }
+    #cart-list li .item-price { color: #667eea; font-weight: 700; }
+
+    .cart-empty {
+      text-align: center;
+      color: #a0aec0;
+      font-size: 0.9rem;
+      padding: 1.5rem 0;
+    }
+
+    .cart-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 1rem;
+      padding-top: 0.9rem;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .cart-footer .total-amount { color: #667eea; font-size: 1.15rem; }
+
+    /* ── Toast ── */
+    #toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 999;
+    }
+    .toast {
+      padding: 0.7rem 1.1rem;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: 0 4px 14px rgba(0,0,0,.18);
+      animation: slideIn .25s ease;
+    }
+    .toast.success { background: #38a169; }
+    .toast.error   { background: #e53e3e; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+  </style>
 </head>
 <body>
-  <h1>🛍️ Welcome to the Store</h1>
-  <button onclick="addToCart(1)">Add Laptop</button>
-  <button onclick="addToCart(2)">Add Phone</button>
-  <button onclick="addToCart(99)">Add Invalid Item</button>
 
-  <h2>Your Cart</h2>
-  <ul id="cart"></ul>
+  <header>
+    <span style="font-size:1.8rem">🛍️</span>
+    <h1>OTel Store</h1>
+    <span class="badge">OpenTelemetry Demo</span>
+  </header>
+
+  <main>
+    <!-- Products -->
+    <section>
+      <h2>Products</h2>
+      <div class="products">
+
+        <div class="product-card">
+          <div class="product-icon">💻</div>
+          <div class="product-info">
+            <div class="name">Laptop</div>
+            <div class="price">$999</div>
+          </div>
+          <button class="btn btn-primary" onclick="addToCart(1)">Add to Cart</button>
+        </div>
+
+        <div class="product-card">
+          <div class="product-icon">📱</div>
+          <div class="product-info">
+            <div class="name">Phone</div>
+            <div class="price">$499</div>
+          </div>
+          <button class="btn btn-primary" onclick="addToCart(2)">Add to Cart</button>
+        </div>
+
+        <div class="product-card" style="border-color:#fed7d7;background:#fff5f5">
+          <div class="product-icon">⚠️</div>
+          <div class="product-info">
+            <div class="name" style="color:#c53030">Invalid Item</div>
+            <div class="price" style="color:#c53030">Test failure path</div>
+          </div>
+          <button class="btn btn-danger" onclick="addToCart(99)">Add to Cart</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Cart -->
+    <section>
+      <h2>Your Cart</h2>
+      <ul id="cart-list">
+        <li class="cart-empty" id="empty-msg">Your cart is empty</li>
+      </ul>
+      <div class="cart-footer" id="cart-footer" style="display:none">
+        <span>Total</span>
+        <span class="total-amount" id="cart-total">$0</span>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast-container"></div>
 
   <script src="/main.js"></script>
 </body>
