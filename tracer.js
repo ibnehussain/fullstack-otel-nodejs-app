@@ -1,9 +1,10 @@
 const { NodeSDK } = require('@opentelemetry/sdk-node');
 const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
-const { AzureMonitorTraceExporter, AzureMonitorMetricExporter } = require('@azure/monitor-opentelemetry-exporter');
+const { AzureMonitorTraceExporter, AzureMonitorMetricExporter, AzureMonitorLogExporter } = require('@azure/monitor-opentelemetry-exporter');
 const { resourceFromAttributes } = require('@opentelemetry/resources');
 const { SEMRESATTRS_SERVICE_NAME } = require('@opentelemetry/semantic-conventions');
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
+const { LoggerProvider, SimpleLogRecordProcessor } = require('@opentelemetry/sdk-logs');
 
 // Define your service resource
 const resource = resourceFromAttributes({
@@ -31,11 +32,19 @@ const metricReader = new PeriodicExportingMetricReader({
   exportIntervalMillis: 60000, // Export every 60 seconds
 });
 
+// Log exporter to Azure Monitor (replaces the default OTLP localhost:4318 exporter)
+const logRecordProcessor = new SimpleLogRecordProcessor(
+  new AzureMonitorLogExporter({
+    connectionString: process.env.APPINSIGHTS_CONNECTION_STRING,
+  })
+);
+
 // Initialize the OpenTelemetry NodeSDK
 const sdk = new NodeSDK({
   resource,
   traceExporter,
   metricReader,
+  logRecordProcessor,
   instrumentations: [getNodeAutoInstrumentations()],
 });
 
